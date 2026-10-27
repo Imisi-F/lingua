@@ -1,0 +1,81 @@
+{"id": "v001", "word": "你", "reading": "nǐ", "meaning": "you"}
+{"id": "v002", "word": "我", "reading": "wǒ", "meaning": "I / me"}
+{"id": "v003", "word": "他", "reading": "tā", "meaning": "he"}
+{"id": "v004", "word": "她", "reading": "tā", "meaning": "she"}
+{"id": "v005", "word": "是", "reading": "shì", "meaning": "to be"}
+{"id": "v006", "word": "不", "reading": "bù", "meaning": "not"}
+{"id": "v007", "word": "好", "reading": "hǎo", "meaning": "good"}
+{"id": "v008", "word": "谢谢", "reading": "xièxiè", "meaning": "thank you"}
+{"id": "v009", "word": "你好", "reading": "nǐhǎo", "meaning": "hello"}
+{"id": "v010", "word": "再见", "reading": "zàijiàn", "meaning": "goodbye"}
+{"id": "v011", "word": "对不起", "reading": "duìbuqǐ", "meaning": "sorry"}
+{"id": "v012", "word": "没关系", "reading": "méiguānxi", "meaning": "it's okay / no problem"}
+{"id": "v013", "word": "请", "reading": "qǐng", "meaning": "please"}
+{"id": "v014", "word": "吗", "reading": "ma", "meaning": "question particle"}
+{"id": "v015", "word": "什么", "reading": "shénme", "meaning": "what"}
+{"id": "v016", "word": "谁", "reading": "shéi", "meaning": "who"}
+{"id": "v017", "word": "哪里", "reading": "nǎlǐ", "meaning": "where"}
+{"id": "v018", "word": "为什么", "reading": "wèishénme", "meaning": "why"}
+{"id": "v019", "word": "怎么", "reading": "zěnme", "meaning": "how"}
+{"id": "v020", "word": "几", "reading": "jǐ", "meaning": "how many (small numbers)"}
+{"id": "v021", "word": "多少", "reading": "duōshao", "meaning": "how many / how much"}
+{"id": "v022", "word": "这", "reading": "zhè", "meaning": "this"}
+{"id": "v023", "word": "那", "reading": "nà", "meaning": "that"}
+{"id": "v024", "word": "这里", "reading": "zhèlǐ", "meaning": "here"}
+{"id": "v025", "word": "那里", "reading": "nàlǐ", "meaning": "there"}
+{"id": "v026", "word": "一", "reading": "yī", "meaning": "one"}
+{"id": "v027", "word": "二", "reading": "èr", "meaning": "two"}
+{"id": "v028", "word": "三", "reading": "sān", "meaning": "three"}
+{"id": "v029", "word": "四", "reading": "sì", "meaning": "four"}
+{"id": "v030", "word": "五", "reading": "wǔ", "meaning": "five"}
+{"id": "v031", "word": "六", "reading": "liù", "meaning": "six"}
+{"id": "v032", "word": "七", "reading": "qī", "meaning": "seven"}
+{"id": "v033", "word": "八", "reading": "bā", "meaning": "eight"}
+{"id": "v034", "word": "九", "reading": "jiǔ", "meaning": "nine"}
+{"id": "v035", "word": "十", "reading": "shí", "meaning": "ten"}
+{"id": "v036", "word": "人", "reading": "rén", "meaning": "person"}
+{"id": "v037", "word": "中国", "reading": "Zhōngguó", "meaning": "China"}
+{"id": "v038", "word": "中文", "reading": "Zhōngwén", "meaning": "Chinese (language)"}
+{"id": "v039", "word": "老师", "reading": "lǎoshī", "meaning": "teacher"}
+{"id": "v040", "word": "学生", "reading": "xuéshēng", "meaning": "student"}
+{"id": "v041", "word": "朋友", "reading": "péngyou", "meaning": "friend"}
+{"id": "v042", "word": "家", "reading": "jiā", "meaning": "home / family"}
+{"id": "v043", "word": "爸爸", "reading": "bàba", "meaning": "dad"}
+{"id": "v044", "word": "妈妈", "reading": "māma", "meaning": "mom"}
+{"id": "v045", "word": "名字", "reading": "míngzi", "meaning": "name"}
+{"id": "v046", "word": "叫", "reading": "jiào", "meaning": "to be called"}
+{"id": "v047", "word": "喜欢", "reading": "xǐhuan", "meaning": "to like"}
+{"id": "v048", "word": "爱", "reading": "ài", "meaning": "to love"}
+{"id": "v049", "word": "吃", "reading": "chī", "meaning": "to eat"}
+{"id": "v050", "word": "喝", "reading": "hē", "meaning": "to drink"}
+{"id": "v051", "word": "水", "reading": "shuǐ", "meaning": "water"}
+{"id": "v052", "word": "米饭", "reading": "mǐfàn", "meaning": "rice"}
+{"id": "v053", "word": "茶", "reading": "chá", "meaning": "tea"}
+{"id": "v054", "word": "去", "reading": "qù", "meaning": "to go"}
+{"id": "v055", "word": "来", "reading": "lái", "meaning": "to come"}
+{"id": "v056", "word": "在", "reading": "zài", "meaning": "at / to be located"}
+{"id": "v057", "word": "有", "reading": "yǒu", "meaning": "to have"}
+{"id": "v058", "word": "没有", "reading": "méiyǒu", "meaning": "to not have"}
+{"id": "v059", "word": "想", "reading": "xiǎng", "meaning": "to want / to think"}
+{"id": "v060", "word": "要", "reading": "yào", "meaning": "to want / need"}
+{"id": "v061", "word": "看", "reading": "kàn", "meaning": "to look / to watch"}
+{"id": "v062", "word": "说", "reading": "shuō", "meaning": "to speak"}
+{"id": "v063", "word": "听", "reading": "tīng", "meaning": "to listen"}
+{"id": "v064", "word": "读", "reading": "dú", "meaning": "to read"}
+{"id": "v065", "word": "写", "reading": "xiě", "meaning": "to write"}
+{"id": "v066", "word": "今天", "reading": "jīntiān", "meaning": "today"}
+{"id": "v067", "word": "明天", "reading": "míngtiān", "meaning": "tomorrow"}
+{"id": "v068", "word": "昨天", "reading": "zuótiān", "meaning": "yesterday"}
+{"id": "v069", "word": "现在", "reading": "xiànzài", "meaning": "now"}
+{"id": "v070", "word": "时间", "reading": "shíjiān", "meaning": "time"}
+{"id": "v071", "word": "点", "reading": "diǎn", "meaning": "o'clock"}
+{"id": "v072", "word": "年", "reading": "nián", "meaning": "year"}
+{"id": "v073", "word": "月", "reading": "yuè", "meaning": "month"}
+{"id": "v074", "word": "天", "reading": "tiān", "meaning": "day"}
+{"id": "v075", "word": "大", "reading": "dà", "meaning": "big"}
+{"id": "v076", "word": "小", "reading": "xiǎo", "meaning": "small"}
+{"id": "v077", "word": "多", "reading": "duō", "meaning": "many / much"}
+{"id": "v078", "word": "少", "reading": "shǎo", "meaning": "few / little"}
+{"id": "v079", "word": "很", "reading": "hěn", "meaning": "very"}
+{"id": "v080", "word": "太", "reading": "tài", "meaning": "too (extremely)"}
+{"id": "v081", "word": "的", "reading": "de", "meaning": "possessive particle ('s / of)"}

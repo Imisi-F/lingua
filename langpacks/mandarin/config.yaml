@@ -1,0 +1,11 @@
+code: mandarin
+name: Mandarin Chinese
+
+# Placeholders for Phase 3 (speech) - not used yet.
+stt_model: faster-whisper/base
+tts_engine: piper
+tts_voice: zh_CN-huayan-medium
+
+seed_vocab: seed-data/vocab.jsonl
+seed_sentences: seed-data/sentences.jsonl
+persona_prompts_dir: prompts

@@ -1,0 +1,13 @@
+[project]
+name = "lingua-srs"
+version = "0.1.0"
+description = "Language-agnostic FSRS spaced-repetition scheduler for Lingua"
+requires-python = ">=3.10"
+dependencies = ["fsrs>=6.0,<7.0"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["srs*"]

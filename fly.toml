@@ -1,0 +1,21 @@
+# Deploy from the REPO ROOT: `fly deploy` (not from apps/api).
+# Rename `app` below to whatever `fly apps create` gives you, and set
+# `primary_region` to whatever region flyctl suggests as nearest to you.
+
+app = "lingua-api"
+primary_region = "lhr"
+
+[build]
+  dockerfile = "apps/api/Dockerfile"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1

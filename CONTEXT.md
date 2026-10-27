@@ -237,3 +237,91 @@ NEXT_PUBLIC_API_URL=https://<your-fly-app>.fly.dev
 Fly.io (backend compute), Supabase (database), DeepSeek (conversation LLM),
 Hugging Face (model weights), Netlify (frontend — already owned). STT and TTS are
 self-hosted on the Fly.io VM, no separate accounts needed for those.
+
+Supabase project is created with "Enable Data API", "Automatically expose new
+tables", and "Enable automatic RLS" all on. **None of this is used** — the
+backend talks to Postgres directly via `DATABASE_URL` (SQLAlchemy), not through
+the auto-generated PostgREST API, so these settings are harmless but inert for
+this project. Don't build anything against the Data API later without
+reconsidering RLS policies first, since tables created here have RLS enabled
+with no policies, which blocks anonymous/PostgREST access by design (direct
+Postgres connection as the `postgres` role bypasses this, which is why it works).
+
+---
+
+## 11. Build status (living section — update this as the build progresses)
+
+**Decisions resolved in this round:**
+- Frontend package manager: **npm** (not pnpm).
+- Secrets: kept local to the owner's machine, never pasted into the build
+  session. All code uses placeholder `.env.example` files.
+- Mandarin Phase 1 seed data: **small starter set**, hand-curated (not yet a
+  real HSK-3.0/Tatoeba import) — 81 common vocab items + 12 example sentences,
+  built only from that vocab. Expanding this to the full HSK 3.0 list +
+  Tatoeba corpus (section 4) is explicitly deferred, not forgotten.
+
+**Phase 1 — implemented:**
+- Repo scaffold matches section 3 exactly (`apps/web`, `apps/api`,
+  `packages/srs`, `packages/core`, `langpacks/mandarin`, `langpacks/yoruba` stub).
+- `packages/srs`: thin wrapper around the `fsrs` PyPI package (v6.x). Verified
+  working: card creation, review scoring, dict round-trip serialization.
+- `packages/core`: `LangpackConfig`/`load_langpack` — reads `config.yaml` +
+  `seed-data/*.jsonl` + `prompts/*.md` from a langpack folder. Verified working
+  against `langpacks/mandarin`.
+- `apps/api` (FastAPI): `/health`, `/chat/message` (persona agent via DeepSeek,
+  conversation history persisted to `conversation_log`), `/review/next` (FSRS
+  due-card lookup, introduces new items from the langpack when nothing is due),
+  `/review/answer` (scores a review, updates the card). Verified: app imports
+  cleanly, all routes registered, `/health` returns 200, OpenAPI schema
+  generates without error. **Not yet verified against a real Postgres/DeepSeek
+  connection** — that happens when the owner runs it locally (section 12).
+- `apps/web` (Next.js, plain JS, no TypeScript): `/` (nav), `/chat` (chat UI),
+  `/review` (flashcard review UI). Talks to the API via
+  `NEXT_PUBLIC_API_URL`. Not yet run (`npm install`/`npm run dev` not executed
+  by the build session — needs Node, which isn't in this backend-focused
+  sandbox check).
+- `apps/api/migrations/001_init.sql`: creates `cards`, `conversation_log`,
+  `error_log`. **Not yet applied** — owner must run this in the Supabase SQL
+  Editor before first use (section 12).
+- `fly.toml` + `apps/api/Dockerfile`: written, **not yet deployed**. Deploy is
+  intentionally deferred until local testing passes (per owner's request).
+
+**Not yet done (in order):**
+1. Owner runs the app locally end-to-end (section 12) and confirms the
+   chat + review loop actually works against real Supabase + DeepSeek.
+2. Expand Mandarin seed data from the small starter set to the full HSK 3.0 +
+   Tatoeba import described in section 4.
+3. Build out `langpacks/yoruba/` for real (Phase 2) — currently just a stub
+   README.
+4. `fly deploy` to Fly.io (backend), then swap the owner's Netlify site to
+   this repo (frontend) — both deferred until step 1 passes.
+5. Phase 3 (STT/TTS), Phase 4 (error-tracking + lesson-planner agents), Phase 5
+   (pronunciation scoring) — untouched, as planned.
+
+---
+
+## 12. Local development — exact commands
+
+**Backend:**
+```bash
+cd apps/api
+python3 -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+pip install -e ../../packages/srs -e ../../packages/core
+pip install -r requirements.txt
+cp .env.example .env               # then fill in DATABASE_URL and DEEPSEEK_API_KEY
+uvicorn app.main:app --reload --port 8000
+```
+
+**Frontend (separate terminal):**
+```bash
+cd apps/web
+npm install
+cp .env.local.example .env.local   # defaults to http://localhost:8000, fine as-is
+npm run dev
+```
+
+Then open http://localhost:3000.
+
+**Database:** before first run, open the Supabase project's SQL Editor and run
+the contents of `apps/api/migrations/001_init.sql` once.
