@@ -8,6 +8,12 @@ openai>=1.50,<2.0
 
 # Phase 3: speech
 faster-whisper>=1.2,<2.0
+# faster-whisper 1.2.1's audio decoding calls av.open(..., metadata_errors=...),
+# a parameter PyAV removed around v16 - faster-whisper doesn't pin an upper
+# bound on av itself, so an unpinned install grabs the newest av and breaks
+# at runtime (confirmed: reproduced the exact TypeError with av 19.0.2,
+# confirmed working with 15.1.0). Pinned here, not in faster-whisper's control.
+av>=14.0,<16.0
 piper-tts>=1.8,<2.0
 # piper-tts's Chinese phonemizer (piper.phonemize_chinese, used by the
 # zh_CN-huayan voice) imports this but doesn't declare it as a dependency -

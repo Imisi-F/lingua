@@ -420,9 +420,21 @@ couldn't have been caught before real deployment, given `huggingface.co`/
 `download.pytorch.org` were blocked in the dev sandbox - noted here so the
 next langpack's author doesn't have to rediscover it.
 
+**TTS (both languages) confirmed working after the memory fix. STT then
+failed** on both `/speech/transcribe` calls: `av.open() got an unexpected
+keyword argument 'metadata_errors'`. Root cause, confirmed by actually
+installing and testing multiple `av` (PyAV) versions, not guessed:
+`faster-whisper==1.2.1`'s audio decoding calls `av.open(..., metadata_errors=...)`,
+a parameter PyAV removed somewhere around v16 - `faster-whisper` doesn't pin
+an upper bound on `av`, so an unpinned install grabs the newest `av` (19.0.2
+at the time) and breaks. Fixed by pinning `av>=14.0,<16.0` in
+`requirements.txt`; verified `decode_audio()` works against a locally
+generated silent WAV with that pin (no internet/model needed for that part).
+Not yet re-verified against a real recording on Fly.
+
 **Not yet done (in order):**
-1. Owner redeploys with the memory fix and confirms speech actually works
-   end to end - the OOM was hit before any audio actually played.
+1. Owner redeploys with the `av` pin and confirms STT actually transcribes
+   real speech (TTS already confirmed working for both languages).
 2. Real Tatoeba import for `langpacks/mandarin/seed-data/sentences.jsonl`
    (still the 12 hand-written ones).
 3. Swap the owner's Netlify site to this repo (frontend) - still deferred
