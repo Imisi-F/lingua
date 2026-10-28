@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { useLangpack } from "../LangpackContext";
+import { playTts } from "../lib/speech";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -49,7 +50,16 @@ export default function ReviewPage() {
       {started && !loading && !item && <p>Nothing due right now. Come back later.</p>}
       {item && (
         <div>
-          <p style={{ fontSize: "2rem" }}>{item.prompt}</p>
+          <p style={{ fontSize: "2rem" }}>
+            {item.prompt}
+            <button
+              onClick={() => playTts(langpack, item.prompt)}
+              title="Play audio"
+              style={{ marginLeft: "0.5rem", fontSize: "1rem" }}
+            >
+              🔊
+            </button>
+          </p>
           {revealed ? (
             <>
               <p>{item.reading ? `${item.reading} — ${item.meaning}` : item.meaning}</p>

@@ -1,6 +1,18 @@
 fastapi>=0.115,<0.116
 uvicorn[standard]>=0.30,<0.31
+python-multipart>=0.0.9,<0.1  # required by FastAPI for Form()/UploadFile (/speech/transcribe)
 sqlalchemy>=2.0,<2.1
 psycopg[binary]>=3.2,<3.3
 pydantic-settings>=2.4,<2.5
 openai>=1.50,<2.0
+
+# Phase 3: speech
+faster-whisper>=1.2,<2.0
+piper-tts>=1.8,<2.0
+# piper-tts's Chinese phonemizer (piper.phonemize_chinese, used by the
+# zh_CN-huayan voice) imports this but doesn't declare it as a dependency -
+# verified by actually importing it; omitting this breaks Mandarin TTS only.
+unicode_rbnf>=2.4,<3.0
+transformers>=4.40,<6.0
+torch>=2.0,<3.0
+numpy>=1.26,<3.0

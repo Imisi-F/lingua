@@ -44,6 +44,10 @@ class LangpackConfig:
     tts_engine: str
     tts_voice: str
     stt_model: str
+    # ISO-ish language code passed to faster-whisper as a hint (e.g. "zh",
+    # "yo") - separate from `code` (the langpack's own directory/id), since
+    # Whisper's language codes aren't always the same thing.
+    whisper_language: str
     root: pathlib.Path
     raw: dict
 
@@ -108,6 +112,7 @@ def load_langpack(name: str, langpacks_root: pathlib.Path) -> LangpackConfig:
         tts_engine=raw.get("tts_engine", ""),
         tts_voice=raw.get("tts_voice", ""),
         stt_model=raw.get("stt_model", ""),
+        whisper_language=raw.get("whisper_language", ""),
         root=root,
         raw=raw,
     )

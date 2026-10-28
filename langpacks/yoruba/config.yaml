@@ -1,12 +1,18 @@
 code: yoruba
 name: Yoruba
 
-# Placeholders for Phase 3 (speech) - not used yet. Per CONTEXT.md section 5:
-# zero-shot Whisper is weak on Yoruba (published WER >100%), so plan to use
-# a fine-tune or Meta MMS rather than a bare Whisper model here.
-stt_model: haramiday/owe-voice-whisper-small-yoruba
+# Speech (Phase 3). stt_model is intentionally the plain multilingual
+# "base" Whisper size, not Haramiday's Yoruba fine-tune: faster-whisper only
+# loads CTranslate2-format models, and that fine-tune is a plain
+# transformers checkpoint - using it here would need converting with
+# ct2-transformers-converter first. Per CONTEXT.md section 5, zero-shot
+# Whisper is known to be weak on Yoruba (published WER >100%) - this wires
+# the pipeline now and accepts rough accuracy; swapping in a converted
+# fine-tune (or MMS's own ASR model) is a follow-up, not a blocker.
+stt_model: base
+whisper_language: yo
 tts_engine: mms
-tts_voice: facebook/mms-tts-yor  # plausible per MMS's facebook/mms-tts-<iso> naming; confirm at Phase 3
+tts_voice: facebook/mms-tts-yor  # confirmed real: CC-BY-NC-4.0, VITS, Meta MMS project
 
 seed_vocab: seed-data/vocab.jsonl
 seed_sentences: seed-data/sentences.jsonl

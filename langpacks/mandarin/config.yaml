@@ -1,8 +1,11 @@
 code: mandarin
 name: Mandarin Chinese
 
-# Placeholders for Phase 3 (speech) - not used yet.
-stt_model: faster-whisper/base
+# Speech (Phase 3). stt_model is a faster-whisper model size (downloaded
+# and cached by the library itself) - not a HF model id. "base" is fine for
+# Mandarin; verified zh_CN-huayan-medium exists in rhasspy/piper-voices.
+stt_model: base
+whisper_language: zh
 tts_engine: piper
 tts_voice: zh_CN-huayan-medium
 

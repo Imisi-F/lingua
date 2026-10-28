@@ -359,13 +359,68 @@ account needing prepaid balance). None of those were code bugs.
 - Verified: backend `/langpacks` returns both langpacks; `npm run build`
   compiles the frontend cleanly with no new errors.
 
+**Phase 3 — speech (this round):**
+- Decision: the owner chose to deploy the backend to Fly.io *before* building
+  Phase 3, specifically because Yoruba TTS (Meta MMS) needs `torch`+
+  `transformers`, which would've reintroduced the laptop disk-space
+  constraint from earlier. Mandarin TTS (Piper) and STT (`faster-whisper`,
+  both languages) don't have that problem, but everything moved to Fly
+  together rather than splitting dev workflows.
+- `apps/api/app/speech/`: `stt.py` (faster-whisper, `int8` on CPU, same code
+  path for both langpacks), `tts_piper.py` (Mandarin), `tts_mms.py` (Yoruba).
+  New `POST /speech/transcribe` (multipart audio upload -> text) and
+  `POST /speech/synthesize` (text -> WAV bytes, dispatches on the langpack's
+  `tts_engine` config field).
+- `packages/core`: added `LangpackConfig.whisper_language` (separate from
+  `code` - Whisper's language codes aren't always the langpack's own id).
+- Frontend: `/chat` got a record button (MediaRecorder -> `/speech/transcribe`
+  -> fills the input for review before sending, doesn't auto-send - rough
+  transcription on a low-resource language like Yoruba is worth a glance
+  first) and a 🔊 play button per tutor reply. `/review` got a 🔊 play button
+  on the prompt (reinforces listening during flashcard review, which is the
+  whole point of this app). Shared fetch helpers in `apps/web/app/lib/speech.js`.
+- **Real, verified choices, not placeholders**: `facebook/mms-tts-yor`
+  (confirmed exists, CC-BY-NC-4.0, VITS) and `rhasspy/piper-voices`'s
+  `zh/zh_CN/huayan/medium/zh_CN-huayan-medium.onnx` (confirmed exists, 63.2MB)
+  were both checked before being wired in, not assumed from the original
+  Phase 1/2 placeholder comments.
+- **Known gap, intentionally not fixed yet**: Yoruba STT still uses the plain
+  multilingual `base` Whisper size, not `Haramiday/owe-voice-whisper-small-yoruba`
+  from `langpacks/yoruba/config.yaml`'s old comment - `faster-whisper` only
+  loads CTranslate2-format models, and that fine-tune is a plain transformers
+  checkpoint. Using it would mean converting it first with
+  `ct2-transformers-converter`. Wiring the pipeline now with known-rough
+  accuracy (per the published >100% zero-shot WER) was judged more valuable
+  than blocking on that conversion.
+- **A real undeclared dependency was caught by actually importing the code,
+  not assumed**: `piper-tts`'s Chinese phonemizer (`piper.phonemize_chinese`,
+  used by the `zh_CN-huayan` voice) imports `unicode_rbnf` but doesn't list it
+  as a dependency - omitting it would break Mandarin TTS specifically. Also
+  needed: `python-multipart` (FastAPI's `Form()`/`UploadFile` silently
+  require it - caught the same way, by actually running the import).
+- **Verified**: `app.main` imports cleanly with the full Phase 3 dependency
+  set installed (faster-whisper, piper-tts, transformers, torch, etc.), all
+  routes register, `/health` and `/langpacks` still respond correctly,
+  `npm run build` compiles the new frontend code with no errors.
+- **Not verified - couldn't be, from this environment**: actual audio
+  in/out. `huggingface.co` and `download.pytorch.org` are both blocked by
+  this dev session's network policy, so neither the Piper voice file, the
+  MMS model, nor a faster-whisper model could actually be downloaded here to
+  run real transcription/synthesis. Fly's build environment has normal
+  internet access, so this isn't expected to be a problem there - but the
+  first real test of actual audio is the owner's, after deploying (section 13).
+
 **Not yet done (in order):**
-1. Real Tatoeba import for `langpacks/mandarin/seed-data/sentences.jsonl`
+1. Deploy to Fly.io and confirm speech actually works end to end (section 13)
+   - nothing above has been exercised with real audio yet.
+2. Real Tatoeba import for `langpacks/mandarin/seed-data/sentences.jsonl`
    (still the 12 hand-written ones).
-2. `fly deploy` to Fly.io (backend), then swap the owner's Netlify site to
-   this repo (frontend) — still deferred until the owner asks for it.
-3. Phase 3 (STT/TTS), Phase 4 (error-tracking + lesson-planner agents), Phase 5
-   (pronunciation scoring) — untouched, as planned.
+3. Swap the owner's Netlify site to this repo (frontend) - still deferred
+   until the owner asks for it; can happen independently of Fly.
+4. Phase 4 (error-tracking + lesson-planner agents), Phase 5 (pronunciation
+   scoring) - untouched, as planned. Converting the Yoruba Whisper fine-tune
+   to CTranslate2 (noted above) is a good candidate to fold into whichever of
+   these picks up Yoruba STT accuracy work.
 
 ---
 
@@ -394,3 +449,52 @@ Then open http://localhost:3000.
 
 **Database:** before first run, open the Supabase project's SQL Editor and run
 the contents of `apps/api/migrations/001_init.sql` once.
+
+---
+
+## 13. Deploying the backend to Fly.io — exact commands
+
+Run these from the repo root (not `apps/api`) - `fly.toml` there points at
+`apps/api/Dockerfile` with the repo root as build context, since the
+Dockerfile needs to `COPY` from `packages/` and `langpacks/` too. No local
+Docker install needed - Fly builds the image on its own remote builder.
+
+```bash
+# one-time: install flyctl if you haven't
+curl -L https://fly.io/install.sh | sh
+
+fly auth login
+
+# create the app (names are globally unique on Fly - if "lingua-api" is
+# taken, pick another name, then update the `app = "..."` line in fly.toml
+# to match before deploying)
+fly apps create lingua-api
+
+# secrets - same values as your local apps/api/.env
+fly secrets set DATABASE_URL="postgresql+psycopg://postgres.lbxifjpdpookjlnenjcu:[YOUR-PASSWORD]@aws-0-<region>.pooler.supabase.com:5432/postgres"
+fly secrets set DEEPSEEK_API_KEY="sk-your-deepseek-key"
+
+# deploy (this is what actually builds the Docker image remotely and ships it)
+fly deploy
+```
+
+Once it's up:
+```bash
+curl https://lingua-api.fly.dev/health   # should return {"status":"ok"}
+```
+
+Then point the frontend at it instead of localhost - edit
+`apps/web/.env.local`:
+```
+NEXT_PUBLIC_API_URL=https://lingua-api.fly.dev
+```
+and restart `npm run dev`. Chat and review should work exactly as they did
+against `localhost:8000` - and this is the first real chance to test actual
+audio in/out, since `huggingface.co`/`download.pytorch.org` were blocked in
+the dev sandbox that built Phase 3 (section 11 explains why).
+
+**If `fly deploy` fails** (most likely spots, given what's untested): the
+`curl` steps baking in the Piper voice file, or the CPU-torch index URL
+being unreachable from Fly's builder (unlikely, but it's the one network
+dependency in the Dockerfile that wasn't verified from this session - see
+section 11). Send me the build log output and I'll fix it.
