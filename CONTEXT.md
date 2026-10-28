@@ -465,10 +465,12 @@ curl -L https://fly.io/install.sh | sh
 
 fly auth login
 
-# create the app (names are globally unique on Fly - if "lingua-api" is
-# taken, pick another name, then update the `app = "..."` line in fly.toml
-# to match before deploying)
-fly apps create lingua-api
+# create the app (names are globally unique on Fly - "lingua-api" was
+# already taken, so the real app is named "imzlingua"; fly.toml's `app =`
+# line must match whatever name you actually get, or every later fly
+# command silently targets an app you don't own and fails with
+# "unauthorized" rather than a clearer error)
+fly apps create imzlingua
 
 # secrets - same values as your local apps/api/.env
 fly secrets set DATABASE_URL="postgresql+psycopg://postgres.lbxifjpdpookjlnenjcu:[YOUR-PASSWORD]@aws-0-<region>.pooler.supabase.com:5432/postgres"
@@ -480,13 +482,13 @@ fly deploy
 
 Once it's up:
 ```bash
-curl https://lingua-api.fly.dev/health   # should return {"status":"ok"}
+curl https://imzlingua.fly.dev/health   # should return {"status":"ok"}
 ```
 
 Then point the frontend at it instead of localhost - edit
 `apps/web/.env.local`:
 ```
-NEXT_PUBLIC_API_URL=https://lingua-api.fly.dev
+NEXT_PUBLIC_API_URL=https://imzlingua.fly.dev
 ```
 and restart `npm run dev`. Chat and review should work exactly as they did
 against `localhost:8000` - and this is the first real chance to test actual

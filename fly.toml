@@ -2,7 +2,7 @@
 # Rename `app` below to whatever `fly apps create` gives you, and set
 # `primary_region` to whatever region flyctl suggests as nearest to you.
 
-app = "lingua-api"
+app = "imzlingua"
 primary_region = "lhr"
 
 [build]
