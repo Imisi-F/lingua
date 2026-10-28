@@ -221,15 +221,20 @@ build:
 
 ## 9. Environment variables needed
 
+Superseded by `apps/api/.env.example` and section 13 below, which reflect
+what's actually implemented (this section originally guessed `SUPABASE_URL`/
+`SUPABASE_SERVICE_KEY`; the real implementation connects to Postgres
+directly via a single `DATABASE_URL`, not through Supabase's REST API - see
+section 10). Kept only as a quick-glance list:
+
 ```
-# apps/api (.env, Fly.io secrets)
+# apps/api (.env locally, Fly secrets in production)
+DATABASE_URL=         # Supabase session pooler connection string - see .env.example
 DEEPSEEK_API_KEY=
-SUPABASE_URL=
-SUPABASE_SERVICE_KEY=
-HF_TOKEN=            # if any HF model download requires auth
+HF_TOKEN=             # optional, rate-limit relief for Phase 3's model downloads
 
 # apps/web (Netlify env vars)
-NEXT_PUBLIC_API_URL=https://<your-fly-app>.fly.dev
+NEXT_PUBLIC_API_URL=https://imzlingua.fly.dev
 ```
 
 ## 10. Accounts already decided
@@ -497,6 +502,12 @@ fly apps create imzlingua
 # secrets - same values as your local apps/api/.env
 fly secrets set DATABASE_URL="postgresql+psycopg://postgres.lbxifjpdpookjlnenjcu:[YOUR-PASSWORD]@aws-0-<region>.pooler.supabase.com:5432/postgres"
 fly secrets set DEEPSEEK_API_KEY="sk-your-deepseek-key"
+
+# optional (Phase 3+): avoids unauthenticated-request rate limits on model
+# downloads (MMS, faster-whisper) - huggingface.co/settings/tokens, Read
+# access is enough. huggingface_hub picks this env var up automatically,
+# no code change needed. `fly secrets set` triggers its own restart.
+fly secrets set HF_TOKEN="hf_your_token_here"
 
 # deploy (this is what actually builds the Docker image remotely and ships it)
 fly deploy
