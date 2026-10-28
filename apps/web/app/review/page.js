@@ -41,9 +41,7 @@ export default function ReviewPage() {
           <p style={{ fontSize: "2rem" }}>{item.prompt}</p>
           {revealed ? (
             <>
-              <p>
-                {item.reading} — {item.meaning}
-              </p>
+              <p>{item.reading ? `${item.reading} — ${item.meaning}` : item.meaning}</p>
               <div style={{ display: "flex", gap: "0.5rem" }}>
                 <button onClick={() => answer("again")}>Again</button>
                 <button onClick={() => answer("hard")}>Hard</button>

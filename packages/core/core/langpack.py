@@ -7,6 +7,7 @@ here, in apps/api, or in packages/srs.
 """
 from __future__ import annotations
 
+import functools
 import json
 import pathlib
 from dataclasses import dataclass
@@ -16,16 +17,24 @@ from dataclasses import dataclass
 class VocabItem:
     id: str
     word: str
-    reading: str
     meaning: str
+    # Not every language needs a separate phonetic layer (Mandarin needs
+    # pinyin; Yoruba's own orthography already encodes pronunciation/tone),
+    # so this is optional rather than assumed.
+    reading: str = ""
+    # Free-form provenance/grading field: HSK band for Mandarin ("1".."7-9"),
+    # dictionary difficulty tier for Yoruba ("easy"/"medium"/"hard"), etc.
+    level: str = ""
 
 
 @dataclass
 class SentenceItem:
     id: str
     text: str
-    reading: str
     translation: str
+    reading: str = ""
+    # Free-form provenance field, e.g. the source corpus domain.
+    source: str = ""
 
 
 @dataclass
@@ -38,12 +47,14 @@ class LangpackConfig:
     root: pathlib.Path
     raw: dict
 
-    @property
+    @functools.cached_property
     def vocab(self) -> list[VocabItem]:
+        # Cached: HSK-scale langpacks run to 10k+ lines, not worth
+        # re-parsing on every request.
         path = self.root / self.raw["seed_vocab"]
         return [VocabItem(**json.loads(line)) for line in _read_jsonl(path)]
 
-    @property
+    @functools.cached_property
     def sentences(self) -> list[SentenceItem]:
         path = self.root / self.raw["seed_sentences"]
         return [SentenceItem(**json.loads(line)) for line in _read_jsonl(path)]
@@ -61,13 +72,21 @@ class LangpackConfig:
             items.append((f"{self.code}:sentence:{s.id}", "sentence"))
         return items
 
+    @functools.cached_property
+    def _vocab_by_id(self) -> dict[str, VocabItem]:
+        return {item.id: item for item in self.vocab}
+
+    @functools.cached_property
+    def _sentences_by_id(self) -> dict[str, SentenceItem]:
+        return {item.id: item for item in self.sentences}
+
     def get_item(self, item_id: str) -> VocabItem | SentenceItem:
         _, item_type, local_id = item_id.split(":", 2)
-        pool = self.vocab if item_type == "vocab" else self.sentences
-        for item in pool:
-            if item.id == local_id:
-                return item
-        raise KeyError(item_id)
+        index = self._vocab_by_id if item_type == "vocab" else self._sentences_by_id
+        try:
+            return index[local_id]
+        except KeyError:
+            raise KeyError(item_id) from None
 
 
 def _read_jsonl(path: pathlib.Path):

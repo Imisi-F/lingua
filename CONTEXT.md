@@ -286,16 +286,71 @@ Postgres connection as the `postgres` role bypasses this, which is why it works)
 - `fly.toml` + `apps/api/Dockerfile`: written, **not yet deployed**. Deploy is
   intentionally deferred until local testing passes (per owner's request).
 
+**Status: step 1 passed** — owner confirmed chat + review work locally
+against real Supabase + DeepSeek (worked through: old pip/Python 3.8 on the
+dev machine, `postgresql://` vs `postgresql+psycopg://` scheme, Supabase's
+IPv6-only direct connection needing the session pooler instead, DeepSeek
+account needing prepaid balance). None of those were code bugs.
+
+**Mandarin vocab expanded to full HSK 3.0 (this round):**
+- `seed-data/vocab.jsonl` replaced: 81 hand-picked words -> **10,937 words**,
+  HSK bands 1 through 7-9, from `krmanik/HSK-3.0` (real repo, cloned and
+  verified). Deduped by simplified form, keeping the earliest/easiest band.
+  Generation script + license notes: `langpacks/mandarin/tools/` and
+  `langpacks/mandarin/SOURCES.md`.
+- `sentences.jsonl` (12 hand-written sentences) is unchanged — a real Tatoeba
+  import for sentences is still open.
+- **Action needed**: the dev DB almost certainly has a few `cards` rows from
+  early local testing using the old 3-digit ids (e.g. `mandarin:vocab:v001`),
+  which no longer exist in the new list (ids are now 5-digit, `v00001` etc.)
+  and will 500 with a `KeyError` if `/review/next` ever returns one. Clear
+  them once, in the Supabase SQL Editor:
+  ```sql
+  delete from cards where langpack = 'mandarin';
+  ```
+
+**Phase 2 — Yorùbá langpack (this round):**
+- Built for real, not a stub: `config.yaml`, `seed-data/vocab.jsonl` (937
+  words), `seed-data/sentences.jsonl` (1,493 sentences), `prompts/persona.md`.
+- **Nothing in this langpack was generated or translated by Claude.** Yorùbá
+  tone marks and diacritics (ẹ, ọ, ṣ) are easy to get subtly wrong without
+  being a fluent reader, so every word and sentence comes verbatim from a
+  real cited corpus instead: vocab from `temitope/yoruba-dictionary-data`
+  (Wiktionary via kaikki.org, CC BY-SA 4.0 — **ShareAlike**, keep attribution
+  on any redistribution), sentences from `MENYO-20k`
+  (`uds-lsv/menyo-20k_MT`, CC BY-NC 4.0 — **non-commercial only**), filtered
+  to <=8-word sentences since MENYO is an MT research corpus (mostly long,
+  complex sentences), not graded reading material. Full details, including a
+  known data-quality caveat (one vocab entry uses a non-standard diacritic,
+  likely a Wiktionary extraction artifact), are in
+  `langpacks/yoruba/SOURCES.md`.
+- **Confirmed the core/langpack boundary held**: adding Yorùbá required zero
+  changes to `apps/api` route logic or `packages/srs`. It did require one
+  real schema fix in `packages/core`: `VocabItem.reading` /
+  `SentenceItem.reading` were non-optional, which baked in a Mandarin-specific
+  assumption (every language needs a separate phonetic layer). Yorùbá's own
+  orthography already encodes pronunciation, so `reading` is now `str = ""`
+  with an empty default, and the frontend (`apps/web/app/review/page.js`)
+  only shows it when non-empty. This is exactly the kind of leak Phase 2 was
+  meant to surface.
+- Also added, motivated by the ~100x jump in data size: `level` (free-form —
+  HSK band for Mandarin, dictionary difficulty tier for Yorùbá) and `source`
+  fields on the two item types, and switched `LangpackConfig.vocab` /
+  `.sentences` from a plain `@property` (re-parsed the file on every access)
+  to `functools.cached_property`, plus an id-indexed lookup for `get_item()`
+  (was a linear scan — fine at 81 items, not at 10,937).
+- `ÌròyìnSpeech` (the audio corpus Phase 3 will actually want) still has no
+  confirmed public download location — not fabricating one, left for later.
+- `ACTIVE_LANGPACK` is still `mandarin` by default; switch it to `yoruba` in
+  `.env` and restart the backend to try the new langpack. A UI language
+  switcher doesn't exist yet — not asked for.
+
 **Not yet done (in order):**
-1. Owner runs the app locally end-to-end (section 12) and confirms the
-   chat + review loop actually works against real Supabase + DeepSeek.
-2. Expand Mandarin seed data from the small starter set to the full HSK 3.0 +
-   Tatoeba import described in section 4.
-3. Build out `langpacks/yoruba/` for real (Phase 2) — currently just a stub
-   README.
-4. `fly deploy` to Fly.io (backend), then swap the owner's Netlify site to
-   this repo (frontend) — both deferred until step 1 passes.
-5. Phase 3 (STT/TTS), Phase 4 (error-tracking + lesson-planner agents), Phase 5
+1. Real Tatoeba import for `langpacks/mandarin/seed-data/sentences.jsonl`
+   (still the 12 hand-written ones).
+2. `fly deploy` to Fly.io (backend), then swap the owner's Netlify site to
+   this repo (frontend) — still deferred until the owner asks for it.
+3. Phase 3 (STT/TTS), Phase 4 (error-tracking + lesson-planner agents), Phase 5
    (pronunciation scoring) — untouched, as planned.
 
 ---
