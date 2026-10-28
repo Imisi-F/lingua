@@ -410,9 +410,19 @@ account needing prepaid balance). None of those were code bugs.
   internet access, so this isn't expected to be a problem there - but the
   first real test of actual audio is the owner's, after deploying (section 13).
 
+**Deployed to Fly as `imzlingua` (owner, after this round) - found a real bug
+the sandbox couldn't catch**: first real Yoruba TTS request OOM-killed the
+process. `fly.toml`'s `[[vm]] memory` was `512mb`, fine for the text-only
+Phase 1/2 backend, but `torch`+`transformers` loading the MMS model pushed
+`anon-rss` to ~395MB against that 512MB ceiling (confirmed via `fly logs`,
+not guessed). Bumped to `2048mb`. This is exactly the kind of thing that
+couldn't have been caught before real deployment, given `huggingface.co`/
+`download.pytorch.org` were blocked in the dev sandbox - noted here so the
+next langpack's author doesn't have to rediscover it.
+
 **Not yet done (in order):**
-1. Deploy to Fly.io and confirm speech actually works end to end (section 13)
-   - nothing above has been exercised with real audio yet.
+1. Owner redeploys with the memory fix and confirms speech actually works
+   end to end - the OOM was hit before any audio actually played.
 2. Real Tatoeba import for `langpacks/mandarin/seed-data/sentences.jsonl`
    (still the 12 hand-written ones).
 3. Swap the owner's Netlify site to this repo (frontend) - still deferred

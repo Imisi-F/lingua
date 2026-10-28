@@ -16,6 +16,11 @@ primary_region = "lhr"
   min_machines_running = 0
 
 [[vm]]
-  memory = "512mb"
+  # 512mb was fine for the text-only Phase 1/2 backend but OOM-killed the
+  # process as soon as torch+transformers loaded the MMS model for Yoruba
+  # TTS (observed: ~395MB anon-rss against a 512MB limit, confirmed via
+  # `fly logs`). Bumped with headroom since torch's own baseline footprint
+  # is the main cost here, not the (small, 36M-param) model itself.
+  memory = "2048mb"
   cpu_kind = "shared"
   cpus = 1
