@@ -1,3 +1,6 @@
+import { LangpackProvider } from "./LangpackContext";
+import LangpackSwitcher from "./components/LangpackSwitcher";
+
 export const metadata = {
   title: "Lingua",
   description: "Personal fluency practice: Yoruba & Mandarin",
@@ -15,7 +18,12 @@ export default function RootLayout({ children }) {
           marginInline: "auto",
         }}
       >
-        {children}
+        <LangpackProvider>
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "1rem" }}>
+            <LangpackSwitcher />
+          </div>
+          {children}
+        </LangpackProvider>
       </body>
     </html>
   );

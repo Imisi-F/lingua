@@ -16,6 +16,7 @@ router = APIRouter(prefix="/chat")
 
 class ChatRequest(BaseModel):
     session_id: uuid.UUID | None = None
+    langpack: str | None = None
     text: str
 
 
@@ -27,7 +28,7 @@ class ChatResponse(BaseModel):
 @router.post("/message")
 def send_message(req: ChatRequest, db: Session = Depends(get_db)) -> ChatResponse:
     session_id = req.session_id or uuid.uuid4()
-    langpack = settings.active_langpack
+    langpack = req.langpack or settings.active_langpack
 
     history_rows = (
         db.execute(
@@ -40,7 +41,7 @@ def send_message(req: ChatRequest, db: Session = Depends(get_db)) -> ChatRespons
     )
     history = [{"role": row.role, "content": row.content} for row in history_rows]
 
-    messages = build_messages(history, req.text)
+    messages = build_messages(langpack, history, req.text)
     reply = chat_completion(messages)
 
     db.add(ConversationLog(session_id=session_id, langpack=langpack, role="user", content=req.text))

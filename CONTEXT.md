@@ -341,9 +341,23 @@ account needing prepaid balance). None of those were code bugs.
   (was a linear scan — fine at 81 items, not at 10,937).
 - `ÌròyìnSpeech` (the audio corpus Phase 3 will actually want) still has no
   confirmed public download location — not fabricating one, left for later.
-- `ACTIVE_LANGPACK` is still `mandarin` by default; switch it to `yoruba` in
-  `.env` and restart the backend to try the new langpack. A UI language
-  switcher doesn't exist yet — not asked for.
+- `ACTIVE_LANGPACK` in `.env` is now only a fallback default for callers that
+  don't specify one. A UI switcher was added after this round (see below).
+
+**UI langpack switcher (this round):**
+- `GET /langpacks` lists every langpack found under `langpacks/` (scans the
+  directory rather than hardcoding the two we have — a third langpack shows
+  up automatically). `/chat/message` now takes an optional `langpack` field
+  and `/review/next` an optional `?langpack=` query param; both fall back to
+  `ACTIVE_LANGPACK` if omitted.
+- Frontend: `apps/web/app/LangpackContext.js` fetches the list once, persists
+  the selection to `localStorage`, and a `<select>` in the root layout
+  (`components/LangpackSwitcher.js`) is visible on every page. Both `/chat`
+  and `/review` read the selection from context and reset their local state
+  (chat history / review item) when it changes, so switching mid-session
+  doesn't mix languages in one thread or show the wrong queue.
+- Verified: backend `/langpacks` returns both langpacks; `npm run build`
+  compiles the frontend cleanly with no new errors.
 
 **Not yet done (in order):**
 1. Real Tatoeba import for `langpacks/mandarin/seed-data/sentences.jsonl`

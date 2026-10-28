@@ -3,13 +3,12 @@
 Phase 1 scope: build the message list for a single-persona chat turn. The
 error-tracking and lesson-planner agents (#2 and #3) are Phase 4.
 """
-from ..config import settings
 from ..langpacks import get_langpack
 
 
-def build_messages(history: list[dict], user_text: str) -> list[dict]:
-    langpack = get_langpack(settings.active_langpack)
-    system_prompt = langpack.persona_prompt("persona")
+def build_messages(langpack: str, history: list[dict], user_text: str) -> list[dict]:
+    lp = get_langpack(langpack)
+    system_prompt = lp.persona_prompt("persona")
 
     messages = [{"role": "system", "content": system_prompt}]
     messages.extend(history)

@@ -30,14 +30,14 @@ class AnswerRequest(BaseModel):
 
 
 @router.get("/next")
-def next_item(db: Session = Depends(get_db)) -> ReviewItem | None:
-    langpack = get_langpack(settings.active_langpack)
+def next_item(langpack: str | None = None, db: Session = Depends(get_db)) -> ReviewItem | None:
+    lp = get_langpack(langpack or settings.active_langpack)
     now = datetime.now(timezone.utc)
 
     due_row = (
         db.execute(
             select(CardRow)
-            .where(CardRow.langpack == langpack.code, CardRow.due_at <= now)
+            .where(CardRow.langpack == lp.code, CardRow.due_at <= now)
             .order_by(CardRow.due_at)
             .limit(1)
         )
@@ -45,26 +45,26 @@ def next_item(db: Session = Depends(get_db)) -> ReviewItem | None:
         .first()
     )
     if due_row is not None:
-        item = langpack.get_item(due_row.item_id)
+        item = lp.get_item(due_row.item_id)
         return _to_review_item(due_row.item_id, due_row.item_type, item, is_new=False)
 
     known_ids = set(
-        db.execute(select(CardRow.item_id).where(CardRow.langpack == langpack.code)).scalars().all()
+        db.execute(select(CardRow.item_id).where(CardRow.langpack == lp.code)).scalars().all()
     )
-    for item_id, item_type in langpack.all_items():
+    for item_id, item_type in lp.all_items():
         if item_id not in known_ids:
             card = new_card()
             db.add(
                 CardRow(
                     item_id=item_id,
-                    langpack=langpack.code,
+                    langpack=lp.code,
                     item_type=item_type,
                     fsrs_state=card_to_state(card),
                     due_at=card.due,
                 )
             )
             db.commit()
-            item = langpack.get_item(item_id)
+            item = lp.get_item(item_id)
             return _to_review_item(item_id, item_type, item, is_new=True)
 
     return None

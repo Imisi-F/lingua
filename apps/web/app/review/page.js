@@ -1,19 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+import { useLangpack } from "../LangpackContext";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export default function ReviewPage() {
+  const { langpack } = useLangpack() || {};
   const [item, setItem] = useState(null);
   const [revealed, setRevealed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [started, setStarted] = useState(false);
 
+  // Switching langpacks mid-session should show that langpack's own queue,
+  // not whatever was left on screen.
+  useEffect(() => {
+    setItem(null);
+    setStarted(false);
+  }, [langpack]);
+
   async function loadNext() {
     setLoading(true);
     setRevealed(false);
-    const res = await fetch(`${API_URL}/review/next`);
+    const res = await fetch(`${API_URL}/review/next?langpack=${langpack}`);
     const data = res.ok ? await res.json() : null;
     setItem(data);
     setLoading(false);
@@ -33,7 +43,8 @@ export default function ReviewPage() {
   return (
     <main>
       <h1>Review queue</h1>
-      {!started && <button onClick={loadNext}>Start</button>}
+      {!langpack && <p>Loading…</p>}
+      {langpack && !started && <button onClick={loadNext}>Start</button>}
       {loading && <p>Loading…</p>}
       {started && !loading && !item && <p>Nothing due right now. Come back later.</p>}
       {item && (

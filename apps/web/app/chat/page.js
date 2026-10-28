@@ -1,17 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+import { useLangpack } from "../LangpackContext";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export default function ChatPage() {
+  const { langpack } = useLangpack() || {};
   const [sessionId, setSessionId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
 
+  // A session's history is all one langpack's conversation - switching
+  // langpacks starts a fresh one rather than mixing languages in one thread.
+  useEffect(() => {
+    setSessionId(null);
+    setMessages([]);
+  }, [langpack]);
+
   async function send() {
-    if (!input.trim()) return;
+    if (!input.trim() || !langpack) return;
     const text = input;
     setMessages((m) => [...m, { role: "user", content: text }]);
     setInput("");
@@ -20,7 +30,7 @@ export default function ChatPage() {
     const res = await fetch(`${API_URL}/chat/message`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ session_id: sessionId, text }),
+      body: JSON.stringify({ session_id: sessionId, langpack, text }),
     });
     const data = await res.json();
     setSessionId(data.session_id);
@@ -43,10 +53,10 @@ export default function ChatPage() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && send()}
-          placeholder="Type in Mandarin or English..."
+          placeholder="Type in your target language or English..."
           style={{ flex: 1, padding: "0.5rem" }}
         />
-        <button onClick={send} disabled={sending}>
+        <button onClick={send} disabled={sending || !langpack}>
           Send
         </button>
       </div>
