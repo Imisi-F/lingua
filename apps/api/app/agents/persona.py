@@ -13,9 +13,10 @@ def build_messages(langpack: str, unit, history: list[dict], user_text: str) -> 
     if unit is not None and unit.vocab_ids:
         words = [lp.get_item(f"{lp.code}:vocab:{vid}").word for vid in unit.vocab_ids]
         system_prompt += (
-            f"\n\nThis conversation is focused on the topic '{unit.name}'. Try to naturally "
-            "work these words into the conversation where they fit, rather than drifting to "
-            f"unrelated vocabulary: {', '.join(words)}"
+            f"\n\nThis conversation is focused on the topic '{unit.name}'. Work ONE OR TWO of "
+            "these words into each reply where they fit naturally, rather than drifting to "
+            "unrelated vocabulary - do not try to cram many of them into a single message, that "
+            f"reads like a vocabulary demo, not a conversation: {', '.join(words)}"
         )
 
     messages = [{"role": "system", "content": system_prompt}]
