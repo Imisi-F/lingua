@@ -15,7 +15,7 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata = {
-  title: "Lingua",
+  title: "Imzlingua",
   description: "Personal fluency practice: Yoruba & Mandarin",
 };
 

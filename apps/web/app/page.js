@@ -73,7 +73,7 @@ function PathContent() {
       <div className="page-content">
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>
           <span className="mono" style={{ fontSize: 15, fontWeight: 500, letterSpacing: "0.02em" }}>
-            lingua
+            imzlingua
           </span>
           <LangpackSwitcher />
         </div>
