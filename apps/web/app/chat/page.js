@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
 import { playTts, transcribe } from "../lib/speech";
-import { BackIcon, HistoryIcon, MicIcon, SendIcon, SpeakerIcon, WaveformIcon } from "../components/icons";
+import { BackIcon, HistoryIcon, MicIcon, SendIcon, SpeakerIcon, StopIcon, WaveformIcon } from "../components/icons";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -174,12 +174,12 @@ function ChatContent() {
           <button
             type="button"
             aria-label={recording ? "Stop recording" : "Record"}
-            className="glass icon-btn"
+            className={`glass icon-btn ${recording ? "recording" : ""}`}
             style={{ width: 44, height: 44, color: "var(--ink-soft)" }}
             onClick={recording ? stopRecording : startRecording}
             disabled={!sessionId || transcribing}
           >
-            <MicIcon />
+            {recording ? <StopIcon /> : <MicIcon />}
           </button>
           <button
             type="submit"

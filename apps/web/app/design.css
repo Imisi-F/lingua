@@ -82,6 +82,22 @@ button {
   flex-shrink: 0;
 }
 
+@keyframes pulse-record {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(192, 106, 62, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(192, 106, 62, 0);
+  }
+}
+
+.icon-btn.recording {
+  background: var(--clay) !important;
+  color: var(--bone) !important;
+  border-color: var(--clay) !important;
+  animation: pulse-record 1.4s ease-out infinite;
+}
+
 .primary-btn {
   display: inline-block;
   background: var(--clay);
