@@ -1,3 +1,3 @@
-from .langpack import LangpackConfig, SentenceItem, VocabItem, load_langpack
+from .langpack import LangpackConfig, SentenceItem, Unit, VocabItem, load_langpack
 
-__all__ = ["LangpackConfig", "SentenceItem", "VocabItem", "load_langpack"]
+__all__ = ["LangpackConfig", "SentenceItem", "Unit", "VocabItem", "load_langpack"]

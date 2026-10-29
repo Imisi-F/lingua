@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -7,10 +8,11 @@ from sqlalchemy.orm import Session
 
 from srs import card_from_state, card_to_state, new_card, review
 
-from ..config import settings
 from ..db import get_db
 from ..langpacks import get_langpack
 from ..models import Card as CardRow
+from ..models import ReviewEvent
+from ..models import Session as SessionRow
 
 router = APIRouter(prefix="/review")
 
@@ -25,13 +27,19 @@ class ReviewItem(BaseModel):
 
 
 class AnswerRequest(BaseModel):
+    session_id: uuid.UUID
     item_id: str
     rating: str  # "again" | "hard" | "good" | "easy"
 
 
 @router.get("/next")
-def next_item(langpack: str | None = None, db: Session = Depends(get_db)) -> ReviewItem | None:
-    lp = get_langpack(langpack or settings.active_langpack)
+def next_item(session_id: uuid.UUID, db: Session = Depends(get_db)) -> ReviewItem | None:
+    session_row = db.get(SessionRow, session_id)
+    if session_row is None:
+        raise HTTPException(status_code=404, detail="session not found")
+
+    lp = get_langpack(session_row.langpack)
+    unit = lp.get_unit(session_row.unit_id)
     now = datetime.now(timezone.utc)
 
     due_row = (
@@ -48,24 +56,27 @@ def next_item(langpack: str | None = None, db: Session = Depends(get_db)) -> Rev
         item = lp.get_item(due_row.item_id)
         return _to_review_item(due_row.item_id, due_row.item_type, item, is_new=False)
 
+    # Nothing due: introduce the next word from THIS unit specifically, not
+    # the langpack's whole catalog - the unit is the point of the path.
     known_ids = set(
         db.execute(select(CardRow.item_id).where(CardRow.langpack == lp.code)).scalars().all()
     )
-    for item_id, item_type in lp.all_items():
+    for vocab_id in unit.vocab_ids:
+        item_id = f"{lp.code}:vocab:{vocab_id}"
         if item_id not in known_ids:
             card = new_card()
             db.add(
                 CardRow(
                     item_id=item_id,
                     langpack=lp.code,
-                    item_type=item_type,
+                    item_type="vocab",
                     fsrs_state=card_to_state(card),
                     due_at=card.due,
                 )
             )
             db.commit()
             item = lp.get_item(item_id)
-            return _to_review_item(item_id, item_type, item, is_new=True)
+            return _to_review_item(item_id, "vocab", item, is_new=True)
 
     return None
 
@@ -85,6 +96,8 @@ def answer(req: AnswerRequest, db: Session = Depends(get_db)):
     if req.rating == "again":
         row.lapses += 1
     row.last_review_at = datetime.now(timezone.utc)
+
+    db.add(ReviewEvent(session_id=req.session_id, item_id=req.item_id, rating=req.rating, source="review"))
     db.commit()
 
     return {"item_id": req.item_id, "due_at": updated.due.isoformat()}

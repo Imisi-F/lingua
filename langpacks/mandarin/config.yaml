@@ -11,4 +11,5 @@ tts_voice: zh_CN-huayan-medium
 
 seed_vocab: seed-data/vocab.jsonl
 seed_sentences: seed-data/sentences.jsonl
+units_file: seed-data/units.json
 persona_prompts_dir: prompts

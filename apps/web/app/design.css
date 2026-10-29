@@ -1,0 +1,143 @@
+/* Shared design system - earthy palette, liquid glass, no AI-tropes
+   (no emoji, no left-border cards, no gradient-wash hero sections). */
+
+:root {
+  --ink: #2a2420;
+  --ink-soft: #6b6153;
+  --bone: #f4efe6;
+  --bone-deep: #ece1d1;
+  --clay: #c06a3e;
+  --clay-deep: #9c5230;
+  --moss: #74805a;
+  --moss-deep: #56613f;
+  --glass-fill: rgba(255, 255, 255, 0.42);
+  --glass-border: rgba(255, 255, 255, 0.55);
+  --glass-shadow: rgba(42, 36, 32, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bone);
+  color: var(--ink);
+  font-family: var(--font-hanken), system-ui, sans-serif;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+}
+
+.mono {
+  font-family: var(--font-mono), monospace;
+}
+
+.glass {
+  background: var(--glass-fill);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 10px 30px var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.toggle-btn {
+  border: none;
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-family: var(--font-hanken), sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  background: transparent;
+  color: var(--ink-soft);
+}
+
+.toggle-btn.active {
+  background: var(--ink);
+  color: var(--bone);
+}
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.primary-btn {
+  display: inline-block;
+  background: var(--clay);
+  color: var(--bone);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 14px 36px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(192, 106, 62, 0.35);
+}
+
+.page-shell {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.atmosphere {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.atmosphere .blob-clay {
+  position: absolute;
+  width: 560px;
+  height: 560px;
+  left: -180px;
+  top: -140px;
+  background: var(--clay);
+  opacity: 0.28;
+  filter: blur(100px);
+  border-radius: 50%;
+}
+
+.atmosphere .blob-moss {
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  right: -160px;
+  top: 380px;
+  background: var(--moss);
+  opacity: 0.24;
+  filter: blur(110px);
+  border-radius: 50%;
+}
+
+.page-content {
+  position: relative;
+  z-index: 1;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 28px 24px 100px;
+}

@@ -7,17 +7,17 @@ export default function LangpackSwitcher() {
   if (!ctx || !ctx.langpack) return null;
 
   return (
-    <select
-      value={ctx.langpack}
-      onChange={(e) => ctx.selectLangpack(e.target.value)}
-      style={{ padding: "0.4rem" }}
-      aria-label="Active langpack"
-    >
+    <div className="glass" style={{ display: "inline-flex", padding: 4, borderRadius: 999 }}>
       {ctx.options.map((o) => (
-        <option key={o.code} value={o.code}>
+        <button
+          key={o.code}
+          type="button"
+          className={`toggle-btn ${ctx.langpack === o.code ? "active" : ""}`}
+          onClick={() => ctx.selectLangpack(o.code)}
+        >
           {o.name}
-        </option>
+        </button>
       ))}
-    </select>
+    </div>
   );
 }

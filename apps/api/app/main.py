@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import chat, health, langpacks, review, speech
+from .routers import chat, health, langpacks, review, sessions, speech, units
 
 app = FastAPI(title="Lingua API")
 
@@ -16,4 +16,6 @@ app.include_router(health.router)
 app.include_router(chat.router)
 app.include_router(langpacks.router)
 app.include_router(review.router)
+app.include_router(sessions.router)
 app.include_router(speech.router)
+app.include_router(units.router)

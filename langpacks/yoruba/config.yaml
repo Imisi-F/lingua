@@ -16,4 +16,5 @@ tts_voice: facebook/mms-tts-yor  # confirmed real: CC-BY-NC-4.0, VITS, Meta MMS 
 
 seed_vocab: seed-data/vocab.jsonl
 seed_sentences: seed-data/sentences.jsonl
+units_file: seed-data/units.json
 persona_prompts_dir: prompts

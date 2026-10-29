@@ -6,9 +6,17 @@ error-tracking and lesson-planner agents (#2 and #3) are Phase 4.
 from ..langpacks import get_langpack
 
 
-def build_messages(langpack: str, history: list[dict], user_text: str) -> list[dict]:
+def build_messages(langpack: str, unit, history: list[dict], user_text: str) -> list[dict]:
     lp = get_langpack(langpack)
     system_prompt = lp.persona_prompt("persona")
+
+    if unit is not None and unit.vocab_ids:
+        words = [lp.get_item(f"{lp.code}:vocab:{vid}").word for vid in unit.vocab_ids]
+        system_prompt += (
+            f"\n\nThis conversation is focused on the topic '{unit.name}'. Try to naturally "
+            "work these words into the conversation where they fit, rather than drifting to "
+            f"unrelated vocabulary: {', '.join(words)}"
+        )
 
     messages = [{"role": "system", "content": system_prompt}]
     messages.extend(history)
